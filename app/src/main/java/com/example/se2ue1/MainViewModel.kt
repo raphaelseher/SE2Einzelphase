@@ -18,6 +18,8 @@ class MainViewModel : ViewModel() {
     var textInput = MutableLiveData<String>();
     var textOutput = ObservableField<String>();
 
+    var sortedOutput = ObservableField<String>();
+
     private val host = "se2-isys.aau.at";
     private val port = 53212;
 
@@ -30,6 +32,8 @@ class MainViewModel : ViewModel() {
                 textOutput.set(it)
             }
         }
+
+        sortEvenAndUneven(number)
     }
 
     private suspend fun callServer(data: String): String? = withContext(Dispatchers.IO) {
@@ -50,5 +54,20 @@ class MainViewModel : ViewModel() {
         } finally {
             socket.close()
         }
+    }
+
+    private fun sortEvenAndUneven(input: String) {
+        val even = ArrayList<String>()
+        val uneven = ArrayList<String>()
+        val ints = input.mapNotNull { it.digitToIntOrNull() }.sorted()
+        for (i in ints) {
+            if (i % 2 == 0) {
+                even.add(i.toString())
+            } else {
+                uneven.add(i.toString())
+            }
+        }
+        val sorted = (even + uneven).reduce { acc, s -> acc + s  }
+        sortedOutput.set("Sorted: $sorted")
     }
 }
